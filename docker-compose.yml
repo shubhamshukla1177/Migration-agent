@@ -1,0 +1,10 @@
+# Optional: a local "prod" Postgres for trying things without Neon/Supabase.
+#   docker compose up -d && make seed ADMIN_URL=postgresql://owner:owner@localhost:5433/appdb READER_PW=r MIGRATOR_PW=m
+services:
+  prod-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: owner
+      POSTGRES_PASSWORD: owner
+      POSTGRES_DB: appdb
+    ports: ["5433:5432"]

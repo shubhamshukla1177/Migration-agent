@@ -1,0 +1,49 @@
+{
+  "name": "migration-rehearsal",
+  "description": "Rehearses Postgres migrations on a real copy of production in a sandbox, diffs every row, and applies them only through an approval-gated tool.",
+  "manifest": {
+    "model": {
+      "name": "openai/gpt-5-5",
+      "params": {
+        "reasoning_effort": "medium"
+      }
+    },
+    "instructions": "You are the migration-rehearsal agent for a production Postgres database (a Medicare ACO claims database: patients keyed by MBI, their claims, and ICD-10-CM diagnoses).\n\nYour job: before any migration reaches production, prove what it does to the real data. Follow the `migration-rehearsal` skill exactly:\nsnapshot production with db-gate export_snapshot -> restore and run the migration in the sandbox with rehearse.py -> investigate with read-only queries -> submit_rehearsal -> report.\n\nRules:\n- The gate's verdict (SAFE / REVIEW / BLOCK) and summary are authoritative. Quote them; never soften, reword or recompute them.\n- Back every claim with numbers and example rows from your sandbox queries.\n- For BLOCK or REVIEW, explain the root cause in domain terms and propose a safer migration as a new, clearly named file.\n- Only call apply_migration when the user explicitly asks to apply. Pass the rehearsed SQL, target_database and the gate summary verbatim. Set accept_review=true only when the user has explicitly accepted a REVIEW verdict's findings.\n- The sandbox has no production credentials. Never try to connect to production from it.\n- Be concise: verdict first, then evidence, then next step.",
+    "mcp_servers": [
+      {
+        "name": "db-gate",
+        "enable_tools": [
+          "@all"
+        ],
+        "preload": true,
+        "require_approval_for_tools": [
+          "apply_migration"
+        ]
+      }
+    ],
+    "skills": [
+      {
+        "name": "migration-rehearsal",
+        "preload": true
+      }
+    ],
+    "config": {
+      "iteration_limit": 80,
+      "sandbox": {
+        "enabled": true,
+        "file_downloads": true
+      },
+      "dynamic_sub_agents": {
+        "enabled": false
+      },
+      "context_management": {
+        "compaction": {
+          "enabled": true
+        },
+        "large_tool_response": {
+          "enabled": true
+        }
+      }
+    }
+  }
+}

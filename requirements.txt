@@ -1,0 +1,4 @@
+psycopg[binary]>=3.1
+mcp>=1.27,<2       # FastMCP API; mcp 2.x renamed it
+uvicorn>=0.30
+pgserver>=0.1.4   # bundled Postgres 16 for running rehearsals locally / in tests
