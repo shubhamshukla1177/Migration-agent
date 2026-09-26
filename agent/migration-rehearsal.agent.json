@@ -23,8 +23,7 @@
     ],
     "skills": [
       {
-        "name": "migration-rehearsal",
-        "preload": true
+        "name": "migration-rehearsal"
       }
     ],
     "config": {
